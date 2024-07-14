@@ -11,6 +11,7 @@
 			{
 				"library" "engine"
 				"linux"   "@_ZN14CSocketCreator13ProcessAcceptEv"
+				"linux64" "@_ZN14CSocketCreator13ProcessAcceptEv"
 			}
 
 			/*
@@ -34,6 +35,7 @@
 			{
 				"library" "engine"
 				"linux"   "@_ZN11CRConServer20HandleFailedRconAuthERK8netadr_s"
+				"linux64" "@_ZN11CRConServer20HandleFailedRconAuthERK8netadr_s"
 			}
 		}
 	}

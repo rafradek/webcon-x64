@@ -6,13 +6,20 @@ Webcon.ConfigureForExtension(builder, binary.compiler)
 
 binary.compiler.includes += [
   os.path.join(builder.sourcePath, 'conplex', 'valve'),
+  os.path.join(Webcon.sm_root, 'public', 'safetyhook', 'include'),
+  os.path.join(Webcon.sm_root, 'public', 'safetyhook', 'zydis'),
 ]
 
 binary.sources += [
   'extension.cpp',
   os.path.join(Webcon.sm_root, 'public', 'smsdk_ext.cpp'),
   os.path.join(Webcon.sm_root, 'public', 'CDetour', 'detours.cpp'),
-  os.path.join(Webcon.sm_root, 'public', 'asm', 'asm.c'),
+  os.path.join(Webcon.sm_root, 'public', 'safetyhook', 'src', 'inline_hook.cpp'),
+  os.path.join(Webcon.sm_root, 'public', 'safetyhook', 'src', 'allocator.cpp'),
+  os.path.join(Webcon.sm_root, 'public', 'safetyhook', 'src', 'os.linux.cpp'),
+  os.path.join(Webcon.sm_root, 'public', 'safetyhook', 'src', 'utility.cpp'),
+  os.path.join(Webcon.sm_root, 'public', 'safetyhook', 'zydis', 'Zydis.c'),
+#  os.path.join(Webcon.sm_root, 'public', 'asm', 'asm.c'),
 ]
 
 binary.compiler.defines += ['SOURCEMOD_BUILD']

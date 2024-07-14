@@ -32,6 +32,7 @@ MHD_Response *responseNotFound;
 struct PluginRequestHandler
 {
 	static bool matches(const char *key, const PluginRequestHandler &value);
+	static bool hash(const detail::CharsAndLength &key);
 
 	PluginRequestHandler(const char *id, IPluginContext *context, funcid_t function, const char *name, const char *description);
 	~PluginRequestHandler();
@@ -39,7 +40,7 @@ struct PluginRequestHandler
 	// TODO: Once we update to a version of SM with modern AMTL,
 	// this needs to be converted to a move constructor.
 	// (and the copy ctor deletes below can go)
-	PluginRequestHandler(ke::Moveable<PluginRequestHandler> other);
+	PluginRequestHandler (PluginRequestHandler &&other);
 
 	PluginRequestHandler(PluginRequestHandler const &other) = delete;
 	PluginRequestHandler &operator =(PluginRequestHandler const &other) = delete;
@@ -58,6 +59,11 @@ bool PluginRequestHandler::matches(const char *key, const PluginRequestHandler &
 	return (strcmp(key, value.id) == 0);
 }
 
+bool PluginRequestHandler::hash(const detail::CharsAndLength &key)
+{
+	return key.hash();
+}
+
 PluginRequestHandler::PluginRequestHandler(const char *id, IPluginContext *context, funcid_t function, const char *name, const char *description)
 {
 	callback = forwards->CreateForwardEx(NULL, ET_Single, 3, NULL, Param_Cell, Param_String, Param_String);
@@ -68,17 +74,17 @@ PluginRequestHandler::PluginRequestHandler(const char *id, IPluginContext *conte
 	this->description = strdup(description);
 }
 
-PluginRequestHandler::PluginRequestHandler(ke::Moveable<PluginRequestHandler> other)
+PluginRequestHandler::PluginRequestHandler(PluginRequestHandler &&other)
 {
-	callback = other->callback;
-	id = other->id;
-	name = other->name;
-	description = other->description;
+	callback = other.callback;
+	id = other.id;
+	name = other.name;
+	description = other.description;
 
-	other->callback = NULL;
-	other->id = NULL;
-	other->name = NULL;
-	other->description = NULL;
+	other.callback = NULL;
+	other.id = NULL;
+	other.name = NULL;
+	other.description = NULL;
 }
 
 PluginRequestHandler::~PluginRequestHandler()
@@ -367,7 +373,7 @@ cell_t Web_RegisterRequestHandler(IPluginContext *context, const cell_t *params)
 	// TODO: Test code
 	//defaultRequestHandler = handler.id;
 
-	requestHandlers.add(i, ke::Moveable<PluginRequestHandler>(handler));
+	requestHandlers.add(i, std::move(handler));
 
 	return 1;
 }

@@ -85,6 +85,7 @@ class ProtocolHandler
 {
 public:
 	static bool matches(const char *key, const ProtocolHandler &value);
+	static bool hash(const detail::CharsAndLength &key);
 
 	ProtocolHandler(const char *id, IConplex::ProtocolDetectorCallback detector, IConplex::ProtocolHandlerCallback handler);
 	ProtocolHandler(const char *id, IPluginContext *context, funcid_t detector, funcid_t handler);
@@ -93,7 +94,7 @@ public:
 	// TODO: Once we update to a version of SM with modern AMTL,
 	// this needs to be converted to a move constructor.
 	// (and the copy ctor deletes below can go)
-	ProtocolHandler(ke::Moveable<ProtocolHandler> other);
+	ProtocolHandler(ProtocolHandler &&other);
 
 	ProtocolHandler(ProtocolHandler const &other) = delete;
 	ProtocolHandler &operator =(ProtocolHandler const &other) = delete;
@@ -126,6 +127,11 @@ private:
 	} handler;
 };
 
+bool ProtocolHandler::hash(const detail::CharsAndLength &key)
+{
+	return key.hash();
+}
+
 bool ProtocolHandler::matches(const char *key, const ProtocolHandler &value)
 {
 	return (strcmp(key, value.id) == 0);
@@ -153,16 +159,16 @@ ProtocolHandler::ProtocolHandler(const char *id, IPluginContext *context, funcid
 	this->handler.plugin->AddFunction(context, handler);
 }
 
-ProtocolHandler::ProtocolHandler(ke::Moveable<ProtocolHandler> other)
+ProtocolHandler::ProtocolHandler(ProtocolHandler &&other)
 {
-	id = other->id;
-	type = other->type;
-	owner = other->owner;
-	detector = other->detector;
-	handler = other->handler;
+	id = other.id;
+	type = other.type;
+	owner = other.owner;
+	detector = other.detector;
+	handler = other.handler;
 
-	other->id = NULL;
-	other->type = Invalid;
+	other.id = NULL;
+	other.type = Invalid;
 }
 
 ProtocolHandler::~ProtocolHandler()
@@ -613,7 +619,7 @@ cell_t Conplex_RegisterProtocol(IPluginContext *context, const cell_t *params)
 	}
 
 	ProtocolHandler ph(id, context, params[2], params[3]);
-	protocolHandlers.add(i, ke::Moveable<ProtocolHandler>(ph));
+	protocolHandlers.add(i, std::move(ph));
 
 	return 1;
 }
@@ -712,7 +718,7 @@ bool Conplex::RegisterProtocolHandler(const char *id, ProtocolDetectorCallback d
 	}
 
 	ProtocolHandler ph(id, detector, handler);
-	return protocolHandlers.add(i, ke::Moveable<ProtocolHandler>(ph));
+	return protocolHandlers.add(i, std::move(ph));
 }
 
 bool Conplex::DropProtocolHandler(const char *id)

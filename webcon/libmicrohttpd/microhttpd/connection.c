@@ -477,7 +477,7 @@ try_ready_chunked_body (struct MHD_Connection *connection)
   if (ret > 0xFFFFFF)
     ret = 0xFFFFFF;
   MHD_snprintf_ (cbuf,
-	    sizeof (cbuf),
+	    sizeof (cbuf) + 1,
 	    "%X\r\n", (unsigned int) ret);
   cblen = strlen (cbuf);
   EXTRA_CHECK (cblen <= sizeof (cbuf));
